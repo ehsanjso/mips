@@ -1,6 +1,7 @@
 module ca1_mips(
 	input clk,
-	input rst
+	input rst,
+	input sw
 	// output	[6:0]	HEX0,					//	Seven Segment Digit 0
 	// output	[6:0]	HEX1,					//	Seven Segment Digit 1
 	// output	[6:0]	HEX2,					//	Seven Segment Digit 2
@@ -28,6 +29,7 @@ module ca1_mips(
  	wire [31:0] Result_WB_to_IR;
 	wire Freeze;
 	wire Flush;
+	wire is_Immediate_ID;
 	// EXE
 	wire [31:0] PC_EXE;
 	wire [31:0] PC_out_EXE;
@@ -47,6 +49,7 @@ module ca1_mips(
 	wire [4:0] Dst_EXE_out_EXE;
 	wire PC_src_out_EXE;
 	wire [31:0] br_address_out_EXE;
+	wire is_Immediate_EXE;
 	// MEM
 	wire [31:0] PC_MEM;
 	wire [31:0] PC_out_MEM;
@@ -101,6 +104,7 @@ module ca1_mips(
 		(
 			.clk         	(clk),
 			.rst         	(rst),
+			.sw 			(sw),
 			.WB_EN       	(WB_EN_WB_out),
 			.Dst_WB      	(DST_WB_out),
 			.Result_WB   	(Result_WB_to_IR),
@@ -109,6 +113,7 @@ module ca1_mips(
 			.WB_EN_EXE   	(WB_EN_out_EXE),
 			.Dest_EXE    	(Dst_EXE_out_EXE),
 			.Branch_Predict	(PC_src_out_EXE),
+			.MEM_R_EN 		(MEM_CMD_out_EXE[0]),
 			.WB_EN_MEM   	(WB_EN_MEM_out),
 			.Dest_MEM    	(DST_MEM_out),	
 			.Src1_ID_out 	(Src1_ID_out),
@@ -120,7 +125,8 @@ module ca1_mips(
 			.Commands	 	(Commands_ID),
 			.PC          	(PC_out_ID),
 			.Freeze      	(Freeze),
-			.Flush         	(Flush)
+			.Flush         	(Flush),
+			.is_Immediate (is_Immediate_ID)
 		);
 
 	
@@ -139,6 +145,9 @@ module ca1_mips(
 			.Dst_ID      (Dest_ID),
 			.Src1_ID_out (Src1_ID_out),
 			.Src2_ID_out (Src2_ID_out),
+			.Freeze 	 (Freeze),
+			.is_Immediate(is_Immediate_ID),
+
 			.WB_EN_EXE   (WB_EN_EXE),
 			.MEM_CMD_EXE (MEM_CMD_EXE),
 			.EXE_CMD_EXE (EXE_CMD_EXE),
@@ -148,13 +157,15 @@ module ca1_mips(
 			.Reg2_EXE    (Reg2_EXE),
 			.Dst_EXE     (Dst_EXE),
 			.Src1_EXE 	 (Src1_EXE),
-			.Src2_EXE 	 (Src2_EXE)
+			.Src2_EXE 	 (Src2_EXE),
+			.is_Immediate_EXE(is_Immediate_EXE)
 		);
 
 	EXE_Stage exe_stage
 		(
 			.clk                (clk),
 			.rst                (rst),
+			.sw 				(sw),
 			.PC_in              (PC_EXE),
 			.WB_EN_EXE          (WB_EN_EXE),
 			.MEM_CMD_EXE        (MEM_CMD_EXE),
@@ -172,6 +183,7 @@ module ca1_mips(
 			.Result_WB_to_IR(Result_WB_to_IR),
 			.WB_EN_WB_out(WB_EN_WB_out),
 			.WB_EN_MEM_out(WB_EN_MEM_out),
+			.is_immediate_EXE(is_Immediate_EXE),
 			.PC                 (PC_out_EXE),
 			.WB_EN_out_EXE      (WB_EN_out_EXE),
 			.MEM_CMD_out_EXE    (MEM_CMD_out_EXE),

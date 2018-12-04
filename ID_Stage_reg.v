@@ -15,6 +15,9 @@ module ID_Stage_reg
 
 		input [4:0] Src1_ID_out,
 		input [4:0] Src2_ID_out,
+
+		input Freeze,
+		input is_Immediate,
 		// To EXE
 		output reg WB_EN_EXE,
 		output reg [1:0]MEM_CMD_EXE,
@@ -26,7 +29,8 @@ module ID_Stage_reg
 		output reg [4:0] Dst_EXE,
 
 		output reg [4:0] Src1_EXE,
-		output reg [4:0] Src2_EXE
+		output reg [4:0] Src2_EXE,
+		output reg is_Immediate_EXE
 	);
 
 
@@ -44,6 +48,7 @@ module ID_Stage_reg
 			Dst_EXE <= 5'b0;
 			Src1_EXE <= 5'b0;
 			Src2_EXE <= 5'b0;
+			is_Immediate_EXE<=1'b0;
 		end	
 		else if(Flush) begin 
 			WB_EN_EXE <= 1'b0;
@@ -56,8 +61,9 @@ module ID_Stage_reg
 			Dst_EXE <= 5'b0;
 			Src1_EXE <= 5'b0;
 			Src2_EXE <= 5'b0;
+			is_Immediate_EXE<=1'b0;
 		end
-		else
+		else  //if(!Freeze)
 		begin
 			WB_EN_EXE <= WB_EN_ID;
 			MEM_CMD_EXE <= MEM_CMD_ID;
@@ -69,6 +75,7 @@ module ID_Stage_reg
 			Dst_EXE <= Dst_ID;
 			Src1_EXE <= Src1_ID_out;
 			Src2_EXE <= Src2_ID_out;
+			is_Immediate_EXE<=is_Immediate;
 		end
 	end
 endmodule // ID_Stage_reg

@@ -2,6 +2,7 @@ module EXE_Stage
 	(
 		input clk,
 		input rst,
+		input sw,
 		// From ID reg
 		input [31:0] PC_in,
 		input WB_EN_EXE,
@@ -20,6 +21,7 @@ module EXE_Stage
 		input [31:0] Result_WB_to_IR,
 		input WB_EN_WB_out,
 		input WB_EN_MEM_out,
+		input is_immediate_EXE,
 		// To EXE reg
 		output [31:0] PC,
 		output WB_EN_out_EXE,
@@ -37,9 +39,10 @@ module EXE_Stage
 	wire [31:0] Val2_EXE_Forward;
 	wire [1:0] sel_alu_in1;
 	wire [1:0] sel_alu_in2;
+	wire [1:0] sel_st_val;
 	Condition_check condtion_check 
 		(
-			.val1(Val1_EXE), 
+			.val1(Val1_EXE_Forward), 
 			.src2_val(Reg2_EXE), 
 			.branch_type(EXE_CMD_EXE[1:0]), 
 			.pc_src(PC_src_out_EXE)
@@ -56,14 +59,19 @@ module EXE_Stage
 
 	Forward_Unit inst_Forward_Unit
 		(
+			.sw 		   (sw),
 			.Src1_EXE      (Src1_EXE),
 			.Src2_EXE      (Src2_EXE),
 			.Dst_MEM       (Dst_MEM),
 			.Dst_WB        (Dst_WB),
+			.Dst_EXE       (Dst_EXE),
 			.WB_EN_WB_out  (WB_EN_WB_out),
 			.WB_EN_MEM_out (WB_EN_MEM_out),
+			.is_immediate  (is_immediate_EXE),
+			.Mem_read_EXE  (MEM_CMD_EXE[0] ),
 			.sel_alu_in1   (sel_alu_in1),
-			.sel_alu_in2   (sel_alu_in2)
+			.sel_alu_in2   (sel_alu_in2),
+			.sel_st_val 	(sel_st_val)
 		);
 
 
@@ -74,7 +82,7 @@ module EXE_Stage
 		.mux32_4To1_in2(Result_WB_to_IR),
 		.mux32_4To1_in3(Result_Alu_Mem ),
 		.mux32_4To1_in4(32'b1),
-		.mux32_2To1_sel(2'b0), // sel_alu_in1
+		.mux32_2To1_sel(sel_alu_in1), // sel_alu_in1
 		.mux32_4To1_out(Val1_EXE_Forward)
 	); 
 
@@ -84,9 +92,21 @@ module EXE_Stage
 		.mux32_4To1_in2(Result_WB_to_IR),
 		.mux32_4To1_in3(Result_Alu_Mem),
 		.mux32_4To1_in4(32'b1),
-		.mux32_2To1_sel(2'b0), // sel_alu_in2
+		.mux32_2To1_sel(sel_alu_in2), // sel_alu_in2
 		.mux32_4To1_out(Val2_EXE_Forward)
 	); 
+
+	Mux32_4To1 inst_Mux32_4To1
+	(
+		.mux32_4To1_in1 (Reg2_EXE),
+		.mux32_4To1_in2 (Result_WB_to_IR),
+		.mux32_4To1_in3 (Result_Alu_Mem),
+		.mux32_4To1_in4 (32'b1),
+
+		.mux32_2To1_sel (sel_st_val),
+		.mux32_4To1_out (src2_val_out_EXE)
+	);
+
 
 	ALU ALU 
 		(
@@ -106,6 +126,6 @@ module EXE_Stage
 	assign WB_EN_out_EXE = WB_EN_EXE;
 	assign MEM_CMD_out_EXE = MEM_CMD_EXE;
 	assign Dst_EXE_out_EXE = Dst_EXE;
-	assign src2_val_out_EXE = Reg2_EXE;
+	
 
 endmodule // EXE_Stage

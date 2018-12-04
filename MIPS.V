@@ -304,7 +304,8 @@ inout	[35:0]	GPIO_1;					//	GPIO Connection 1
 
 ca1_mips mips(
 	.clk(CLOCK_50),
-	.rst(SW[0])
+	.rst(SW[0]),
+	.sw( SW[1] )
 	// .HEX0(HEX0),					//	Seven Segment Digit 0
 	// .HEX1(HEX1),					//	Seven Segment Digit 1
 	// .HEX2(HEX2),					//	Seven Segment Digit 2

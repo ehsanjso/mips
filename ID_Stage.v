@@ -2,6 +2,7 @@ module ID_Stage
 	(
 		input clk,
 		input rst,
+		input sw,
 		//From WB
 		input WB_EN,
 		input [4:0] Dst_WB,
@@ -13,6 +14,7 @@ module ID_Stage
 		input WB_EN_EXE,
 		input [4:0] Dest_EXE,
 		input Branch_Predict,
+		input MEM_R_EN,
 		// from MEM 
 		input WB_EN_MEM,
 		input [4:0] Dest_MEM,
@@ -28,13 +30,13 @@ module ID_Stage
 		output [8:0] Commands,
 		output [31:0] PC,
 		output Freeze,
-		output Flush
+		output Flush,
+		output is_Immediate
 	);
 	
 	assign PC = PC_in;
 	//instance of registers_file
 
-	wire is_Immediate;
 	wire [31:0] sign_Out_ID;
 	wire WB_EN_ID;
 	// Mem_signals
@@ -43,7 +45,7 @@ module ID_Stage
 	wire [5:0]EXE_CMD_ID;
 
 	assign Src1_ID_out = instruction[25:21] ;
-	assign Src2_ID_out = instruction[20:16] ;
+	assign Src2_ID_out = is_Immediate ? 5'b0 : instruction[20:16] ; // for three consecutive ld
 	Registers_file rf
 		(
 			.clk(clk),
@@ -77,12 +79,14 @@ module ID_Stage
 
 	Hazard_Detect inst_Hazard_Detect
 		(
+			.sw				(sw),
 			.Src1_ID      	(instruction[25:21]),
 			.Src2_ID      	(instruction[20:16]),
 			.Branch_Predict	(Branch_Predict),
 			.is_Immediate 	(is_Immediate),
 			.WB_EN_MEM    	(WB_EN_MEM),
 			.WB_EN_EXE    	(WB_EN_EXE),
+			.MEM_R_EN		(MEM_R_EN),
 			.Dest_EXE     	(Dest_EXE),
 			.Dest_MEM     	(Dest_MEM),
 			.Freeze       	(Freeze),
