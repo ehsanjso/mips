@@ -12,6 +12,7 @@ module ID_Stage
 		// from EXE
 		input WB_EN_EXE,
 		input [4:0] Dest_EXE,
+		input Branch_Predict,
 		// from MEM 
 		input WB_EN_MEM,
 		input [4:0] Dest_MEM,
@@ -26,7 +27,8 @@ module ID_Stage
 
 		output [8:0] Commands,
 		output [31:0] PC,
-		output Freeze
+		output Freeze,
+		output Flush
 	);
 	
 	assign PC = PC_in;
@@ -75,14 +77,16 @@ module ID_Stage
 
 	Hazard_Detect inst_Hazard_Detect
 		(
-			.Src1_ID      (instruction[25:21]),
-			.Src2_ID      (instruction[20:16]),
-			.is_Immediate (is_Immediate),
-			.WB_EN_MEM    (WB_EN_MEM),
-			.WB_EN_EXE    (WB_EN_EXE),
-			.Dest_EXE     (Dest_EXE),
-			.Dest_MEM     (Dest_MEM),
-			.Freeze       (Freeze)
+			.Src1_ID      	(instruction[25:21]),
+			.Src2_ID      	(instruction[20:16]),
+			.Branch_Predict	(Branch_Predict),
+			.is_Immediate 	(is_Immediate),
+			.WB_EN_MEM    	(WB_EN_MEM),
+			.WB_EN_EXE    	(WB_EN_EXE),
+			.Dest_EXE     	(Dest_EXE),
+			.Dest_MEM     	(Dest_MEM),
+			.Freeze       	(Freeze),
+			.Flush         	(Flush)
 		);
 
 

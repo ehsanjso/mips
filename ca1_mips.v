@@ -23,11 +23,11 @@ module ca1_mips(
 	wire [4:0] Dest_ID;
 	wire [4:0] Src1_ID_out;
 	wire [4:0] Src2_ID_out;
-
 	wire [4:0] DST_WB_out;	
  	wire WB_EN_WB_out;
  	wire [31:0] Result_WB_to_IR;
 	wire Freeze;
+	wire Flush;
 	// EXE
 	wire [31:0] PC_EXE;
 	wire [31:0] PC_out_EXE;
@@ -90,6 +90,7 @@ module ca1_mips(
 			.clk 		 		(clk),
 			.rst 		 		(rst),
 			.Freeze		 		(Freeze),
+			.Flush				(Flush),
 			.PC_in 		 		(PC_out_IF),
 			.Instruction_in 	(Instruction_IF),
 			.PC 				(PC_ID),
@@ -98,26 +99,28 @@ module ca1_mips(
 		
 	ID_Stage id_stage
 		(
-			.clk         (clk),
-			.rst         (rst),
-			.WB_EN       (WB_EN_WB_out),
-			.Dst_WB      (DST_WB_out),
-			.Result_WB   (Result_WB_to_IR),
-			.instruction (Instruction_ID),
-			.PC_in       (PC_ID),
-			.WB_EN_EXE   (WB_EN_out_EXE),
-			.Dest_EXE    (Dst_EXE_out_EXE),
-			.WB_EN_MEM   (WB_EN_MEM_out),
-			.Dest_MEM    (DST_MEM_out),	
-			.Src1_ID_out (Src1_ID_out),
-			.Src2_ID_out (Src2_ID_out),
-			.Dest_ID     (Dest_ID),
-			.Val1_ID     (Val1_ID),
-			.Val2_ID     (Val2_ID),
-			.Reg2_ID     (Reg2_ID),
-			.Commands	 (Commands_ID),
-			.PC          (PC_out_ID),
-			.Freeze      (Freeze)
+			.clk         	(clk),
+			.rst         	(rst),
+			.WB_EN       	(WB_EN_WB_out),
+			.Dst_WB      	(DST_WB_out),
+			.Result_WB   	(Result_WB_to_IR),
+			.instruction 	(Instruction_ID),
+			.PC_in       	(PC_ID),
+			.WB_EN_EXE   	(WB_EN_out_EXE),
+			.Dest_EXE    	(Dst_EXE_out_EXE),
+			.Branch_Predict	(PC_src_out_EXE),
+			.WB_EN_MEM   	(WB_EN_MEM_out),
+			.Dest_MEM    	(DST_MEM_out),	
+			.Src1_ID_out 	(Src1_ID_out),
+			.Src2_ID_out 	(Src2_ID_out),
+			.Dest_ID     	(Dest_ID),
+			.Val1_ID     	(Val1_ID),
+			.Val2_ID     	(Val2_ID),
+			.Reg2_ID     	(Reg2_ID),
+			.Commands	 	(Commands_ID),
+			.PC          	(PC_out_ID),
+			.Freeze      	(Freeze),
+			.Flush         	(Flush)
 		);
 
 	
@@ -125,6 +128,7 @@ module ca1_mips(
 		(
 			.clk         (clk),
 			.rst         (rst),
+			.Flush		 (Flush),
 			.WB_EN_ID    (Commands_ID[0]),
 			.MEM_CMD_ID  (Commands_ID[2:1]),
 			.EXE_CMD_ID  (Commands_ID[8:3]),
@@ -168,7 +172,6 @@ module ca1_mips(
 			.Result_WB_to_IR(Result_WB_to_IR),
 			.WB_EN_WB_out(WB_EN_WB_out),
 			.WB_EN_MEM_out(WB_EN_MEM_out),
-
 			.PC                 (PC_out_EXE),
 			.WB_EN_out_EXE      (WB_EN_out_EXE),
 			.MEM_CMD_out_EXE    (MEM_CMD_out_EXE),

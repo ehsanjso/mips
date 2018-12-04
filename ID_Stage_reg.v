@@ -2,6 +2,7 @@ module ID_Stage_reg
 	(
 		input clk,
 		input rst,
+		input Flush,
 		// From ID
 		input WB_EN_ID,
 		input [1:0]MEM_CMD_ID,
@@ -44,6 +45,18 @@ module ID_Stage_reg
 			Src1_EXE <= 5'b0;
 			Src2_EXE <= 5'b0;
 		end	
+		else if(Flush) begin 
+			WB_EN_EXE <= 1'b0;
+			MEM_CMD_EXE <= 2'b0;
+			EXE_CMD_EXE <= 6'b0;
+			PC <= 32'b0;
+			Val1_EXE <= 32'b0;
+			Val2_EXE <= 32'b0;
+			Reg2_EXE <= 32'b0;
+			Dst_EXE <= 5'b0;
+			Src1_EXE <= 5'b0;
+			Src2_EXE <= 5'b0;
+		end
 		else
 		begin
 			WB_EN_EXE <= WB_EN_ID;
